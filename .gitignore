@@ -1,0 +1,46 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+*.xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xccheckout
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+*.trace
+*.dSYM.zip
+*.dSYM
+
+# FlutterCleaner specific
+FlutterCleaner/DerivedData/
+FlutterCleaner/build/
+Library/Logs/FlutterCleaner.log
+
+# Misc
+*.swp
+*.swo
+*.tmp
