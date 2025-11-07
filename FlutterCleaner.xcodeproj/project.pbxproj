@@ -29,9 +29,33 @@
 		7CAF636C2EBEA0600022A4C2 /* FlutterCleanerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlutterCleanerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7CAF638B2EBEA2AE0022A4C2 /* Exceptions for "FlutterCleaner" folder in "FlutterCleaner" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Helpers/FileSizeFormatter.swift,
+			);
+			target = 7CAF63542EBEA05F0022A4C2 /* FlutterCleaner */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		7CAF638C2EBEA2AE0022A4C2 /* Exceptions for "FlutterCleaner" folder in "Copy Bundle Resources" phase from "FlutterCleaner" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 7CAF63532EBEA05F0022A4C2 /* Resources */;
+			membershipExceptions = (
+				Helpers/FileSizeFormatter.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7CAF63572EBEA05F0022A4C2 /* FlutterCleaner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7CAF638B2EBEA2AE0022A4C2 /* Exceptions for "FlutterCleaner" folder in "FlutterCleaner" target */,
+				7CAF638C2EBEA2AE0022A4C2 /* Exceptions for "FlutterCleaner" folder in "Copy Bundle Resources" phase from "FlutterCleaner" target */,
+			);
 			path = FlutterCleaner;
 			sourceTree = "<group>";
 		};
