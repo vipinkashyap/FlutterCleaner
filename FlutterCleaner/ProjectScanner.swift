@@ -23,12 +23,19 @@ class ProjectScanner: ObservableObject {
             )
 
             while let file = enumerator?.nextObject() as? URL {
+                // Skip unnecessary folders to avoid deep recursion
+                let path = file.path
+                if path.contains("/.git/") || path.contains("/.gradle/") || path.contains("/node_modules/") {
+                    continue
+                }
                 if file.lastPathComponent == "pubspec.yaml" {
                     let content = try? String(contentsOf: file,encoding: .utf8)
                     if content?.contains("flutter:") == true {
                         let dir = file.deletingLastPathComponent()
                         let size = self.directorySize(at: dir)
-                        found.append(FlutterProject(path: dir.path, size: size))
+                        let attrs = try? self.fileManager.attributesOfItem(atPath: dir.path)
+                        let lastModified = attrs?[.modificationDate] as? Date ?? .distantPast
+                        found.append(FlutterProject(path: dir.path, size: size, lastModified: lastModified))
                     }
                 }
             }

@@ -29,6 +29,7 @@ class Cleaner {
 
             process.launch()
             process.waitUntilExit()
+            AppLogger.log("Cleaned project \(project.name) – status: \(process.terminationStatus)")
 
             DispatchQueue.main.async {
                 completion(process.terminationStatus == 0)

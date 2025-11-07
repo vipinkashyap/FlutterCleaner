@@ -6,15 +6,21 @@
 //
 
 import SwiftUI
+import Combine
+import Foundation
 
 struct ContentView: View {
     @StateObject private var scanner = ProjectScanner()
     @State private var selectedFolder: URL?
     @State private var isScanning = false
     @State private var cleaningIDs = Set<UUID>()
-    @State private var deepClean = false   // 👈 new state
+    @AppStorage("deepClean") private var deepClean = false   // 👈 now auto-saved
+    @AppStorage("autoCleanEnabled") private var autoCleanEnabled = false
     @State private var isCleaningAll = false
     @State private var cleanSummary: (count: Int, bytes: UInt64)? = nil
+    @State private var completedCount = 0
+    @State private var showConfirm = false
+    @State private var searchText = ""
 
     /// Computed property for total size
     private var totalSize: UInt64 {
@@ -23,6 +29,13 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
+
+            if let folder = selectedFolder {
+                Text("Last scanned folder: \(folder.lastPathComponent)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 2)
+            }
             HStack {
                 Button("Select Folder") {
                     pickFolder()
@@ -37,7 +50,17 @@ struct ContentView: View {
                 .padding()
 
                 Button("Clean All") {
-                    cleanAllProjects()
+                    if deepClean {
+                        showConfirm = true
+                    } else {
+                        cleanAllProjects()
+                    }
+                }
+                .alert("Confirm Deep Clean?", isPresented: $showConfirm) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Proceed") { cleanAllProjects() }
+                } message: {
+                    Text("This will also delete iOS/Pods folders. You’ll need to run `pod install` again later.")
                 }
                 .disabled(isCleaningAll || scanner.projects.isEmpty)
                 .padding(.leading, 4)
@@ -45,7 +68,15 @@ struct ContentView: View {
                 Toggle("Deep Clean (include iOS Pods)", isOn: $deepClean)
                     .toggleStyle(SwitchToggleStyle())
                     .padding(.leading, 20)
-
+                Toggle("Auto Clean weekly", isOn: $autoCleanEnabled)
+                    .toggleStyle(SwitchToggleStyle())
+                    .onChange(of: autoCleanEnabled) {
+                        if autoCleanEnabled {
+                            LaunchdScheduler.enableAutoClean()
+                        } else {
+                            LaunchdScheduler.disableAutoClean()
+                        }
+                    }
                 Spacer()
             }
 
@@ -64,16 +95,34 @@ struct ContentView: View {
             } else if scanner.projects.isEmpty {
                 Text("No Flutter projects found").foregroundColor(.secondary)
             } else {
-                List(scanner.projects) { project in
+                TextField("Search by name or path", text: $searchText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding([.horizontal, .bottom])
+ 
+                let filteredProjects = scanner.projects.filter {
+                    searchText.isEmpty ||
+                    $0.name.localizedCaseInsensitiveContains(searchText) ||
+                    $0.path.localizedCaseInsensitiveContains(searchText)
+                }
+
+                List(filteredProjects) { project in
                     HStack {
                         VStack(alignment: .leading) {
-                            Text(project.name).bold()
+                            HStack {
+                                Text(project.name)
+                                    .bold()
+                                    .foregroundColor(project.isStale ? .gray : .primary)
+                                if project.isStale {
+                                    Text("🕒")
+                                }
+                            }
                             Text(project.path)
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
                         Spacer()
                         Text(formatBytes(project.size))
+                            .foregroundColor(project.isStale ? .gray : .primary)
                         Button("Clean") {
                             cleaningIDs.insert(project.id)
                             Cleaner.shared.clean(project: project, includePods: deepClean) { success in
@@ -84,8 +133,36 @@ struct ContentView: View {
                             }
                         }
                         .disabled(cleaningIDs.contains(project.id) || isCleaningAll)
+                        Button {
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: project.path)])
+                        } label: {
+                            Label("Reveal", systemImage: "folder")
+                        }
+                        .buttonStyle(.borderless)
                     }
                 }
+                Divider()
+                HStack {
+                    Text("Total \(scanner.projects.count) projects")
+                    Spacer()
+                    Text("Total size: \(formatBytes(totalSize))")
+                    if let summary = cleanSummary {
+                        Spacer()
+                        Text("Freed this session: \(formatBytes(summary.bytes))")
+                    }
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding([.horizontal, .bottom])
+                .background(.ultraThinMaterial)
+                .cornerRadius(8)
+            }
+        }
+        .onAppear {
+            if let lastPath = UserDefaults.standard.string(forKey: "lastFolder") {
+                let url = URL(fileURLWithPath: lastPath)
+                selectedFolder = url
+                scanner.scan(in: url)
             }
         }
         .padding()
@@ -97,6 +174,7 @@ struct ContentView: View {
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let url = panel.url {
             selectedFolder = url
+            UserDefaults.standard.set(url.path, forKey: "lastFolder")
             scanner.scan(in: url)
             cleanSummary = nil
         }
@@ -109,7 +187,6 @@ struct ContentView: View {
         let projectsToClean = scanner.projects
         let initialTotal = totalSize
         var cleanedCount = 0
-        var cleanedBytes: UInt64 = 0
         var completed = 0
         let total = projectsToClean.count
 
@@ -142,8 +219,24 @@ struct ContentView: View {
             }
         }
     }
+    
+    // MARK: - Helpers
+
+    private func formatBytes(_ bytes: UInt64) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
 }
 
-#Preview {
-    ContentView()
+#Preview("Main Screen - Sample Projects") {
+    let scanner = ProjectScanner()
+    scanner.projects = [
+        FlutterProject(path: "/Users/vkk/Play/MyApp", size: 125_000_000, lastModified: Date()),
+        FlutterProject(path: "/Users/vkk/Play/OldProject", size: 512_000_000, lastModified: Date().addingTimeInterval(-60*60*24*120))
+    ]
+    return ContentView()
+        .environmentObject(scanner)
+        .frame(width: 700, height: 500)
+        .preferredColorScheme(.light)
 }
