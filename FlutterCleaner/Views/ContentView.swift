@@ -205,7 +205,7 @@ struct ContentView: View {
                 }
                 // Wait a bit for scan to complete, then update summary
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                    let freed = initialTotal - totalSize
+                    let freed = initialTotal > totalSize ? initialTotal - totalSize : 0
                     cleanSummary = (cleanedCount, freed)
                     isCleaningAll = false
                     cleaningIDs.subtract(projectsToClean.map { $0.id })

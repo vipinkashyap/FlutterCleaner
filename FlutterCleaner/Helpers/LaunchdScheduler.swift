@@ -14,10 +14,13 @@ struct LaunchdScheduler {
         let plist: [String: Any] = [
             "Label": "com.fluttercleaner.autoclean",
             "ProgramArguments": [
-                "/Applications/FlutterCleaner.app/Contents/MacOS/FlutterCleaner",
+                "/usr/bin/env",
+                "open",
+                "-a",
+                "/Applications/FlutterCleaner.app",
+                "--args",
                 "--auto"
-            ],
-            "StartInterval": interval,
+            ],            "StartInterval": interval,
             "RunAtLoad": true
         ]
 

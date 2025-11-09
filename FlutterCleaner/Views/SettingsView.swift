@@ -129,6 +129,14 @@ struct SettingsView: View {
             .buttonStyle(.borderedProminent)
             .padding(.top, 8)
             
+            Button("Change Flutter Path") {
+                if let path = FlutterPathPicker.pickFlutterBinary() {
+                    AppLogger.log("✅ Flutter path changed to: \(path)")
+                    ConfigManager.saveFlutterPath(path.absoluteString)
+                }
+            }
+            .buttonStyle(.bordered)
+            
             // Inline recent log preview
             let logURL = FileManager.default
                 .homeDirectoryForCurrentUser
