@@ -1,6 +1,6 @@
 # 🧹 Flutter Cleaner for macOS
 
-![App Icon](Screenshots/icon.png)
+![App Icon](./FlutterCleaner/Screenshots/app_icon_512.png)
 
 **Flutter Cleaner** is a lightweight macOS utility that scans your
 system for Flutter projects and helps you reclaim disk space by cleaning
@@ -30,7 +30,7 @@ Built with ❤️ in SwiftUI.
   -------------------------------------------------------------------------------------------------------
   Main Window                         Settings                        Logs
   ----------------------------------- ------------------------------- -----------------------------------
-  ![](Screenshots/cleaner_main.png)   ![](Screenshots/settings.png)   ![](Screenshots/logs_preview.png)
+  ![](./FlutterCleaner/Screenshots/cleaner_main.png)   ![](./FlutterCleaner/Screenshots/settings.png)   ![](./FlutterCleaner/Screenshots/logs_preview.png)
 
   -------------------------------------------------------------------------------------------------------
 
