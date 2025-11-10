@@ -10,14 +10,14 @@ import SwiftUI
 @main
 struct FlutterCleanerApp: App {
     init() {
-        // Attempt to detect flutter; if not found, prompt user for path
-        if Cleaner.detectFlutterPath() == nil {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                _ = FlutterPathPicker.pickFlutterBinary()
-            }
+        // Ensure we can read disk freely
+        PermissionManager.promptForFullDiskAccessIfNeeded()
+
+        if Cleaner.detectFlutterPath() == nil,
+           FlutterPathPicker.restoreFlutterBinary() == nil {
+            _ = FlutterPathPicker.pickFlutterBinary()
         }
 
-        // Auto-clean support
         let args = CommandLine.arguments
         if args.contains("--auto") {
             AutoCleaner.run()
@@ -31,7 +31,6 @@ struct FlutterCleanerApp: App {
                 .frame(minWidth: 700, minHeight: 500)
         }
 
-        // 👇 Add this block:
         Settings {
             SettingsView()
         }

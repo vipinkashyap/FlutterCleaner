@@ -14,6 +14,11 @@ class ProjectScanner: ObservableObject {
     private let fileManager = FileManager.default
 
     func scan(in root: URL) {
+        guard PermissionManager.hasFullDiskAccess() else {
+            AppLogger.log("⚠️ Missing Full Disk Access. Scan may be incomplete.")
+            PermissionManager.promptForFullDiskAccessIfNeeded()
+            return
+        }
         DispatchQueue.global(qos: .userInitiated).async {
             var found: [FlutterProject] = []
             let enumerator = self.fileManager.enumerator(

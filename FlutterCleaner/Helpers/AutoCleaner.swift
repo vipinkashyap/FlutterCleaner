@@ -17,7 +17,7 @@ struct AutoCleaner {
         let scanner = ProjectScanner()
         scanner.scan(in: url)
         // Wait briefly for scan to finish
-        DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+        
             for project in scanner.projects {
                 Cleaner.shared.clean(project: project, includePods: defaults.bool(forKey: "deepClean")) { _ in }
             }
@@ -33,6 +33,6 @@ struct AutoCleaner {
                                                     trigger: nil)
                 UNUserNotificationCenter.current().add(request)
             }
-        }
+        
     }
 }

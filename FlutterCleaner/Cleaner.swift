@@ -20,17 +20,6 @@ final class Cleaner {
                 return
             }
 
-            // Start security scope
-            guard flutterURL.startAccessingSecurityScopedResource() else {
-                AppLogger.log("⚠️ Failed to start security scope for Flutter binary.")
-                DispatchQueue.main.async { completion(false) }
-                return
-            }
-
-            defer {
-                flutterURL.stopAccessingSecurityScopedResource()
-            }
-
             let flutterPath = flutterURL.path
             AppLogger.log("Using Flutter path: \(flutterPath)")
 
