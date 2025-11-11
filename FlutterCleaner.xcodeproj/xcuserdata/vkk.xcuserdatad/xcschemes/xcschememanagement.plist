@@ -7,12 +7,30 @@
 		<key>FlutterCleaner.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<key>FlutterCleanerHelper.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>7CAF63542EBEA05F0022A4C2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7CAF63612EBEA0600022A4C2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7CAF636B2EBEA0600022A4C2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>
