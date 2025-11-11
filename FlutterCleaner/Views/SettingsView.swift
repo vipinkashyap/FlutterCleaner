@@ -8,32 +8,56 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @State private var flutterPath: String? = ConfigManager.loadFlutterPath()
+    @State private var showToast = false
     @AppStorage("deepClean") private var deepClean = false
     @AppStorage("autoCleanEnabled") private var autoCleanEnabled = false
     @AppStorage("customIntervalDays") private var customIntervalDays = 7
 
     var body: some View {
-        TabView {
-            // MARK: General Tab
-            generalTab
-                .tabItem {
-                    Label("General", systemImage: "gear")
-                }
+        ZStack(alignment: .bottom) {
+            TabView {
+                // MARK: General Tab
+                generalTab
+                    .tabItem {
+                        Label("General", systemImage: "gear")
+                    }
 
-            // MARK: Automation Tab
-            automationTab
-                .tabItem {
-                    Label("Automation", systemImage: "clock.arrow.circlepath")
-                }
+                // MARK: Automation Tab
+                automationTab
+                    .tabItem {
+                        Label("Automation", systemImage: "clock.arrow.circlepath")
+                    }
 
-            // MARK: Advanced Tab (placeholder)
-            advancedTab
-                .tabItem {
-                    Label("Advanced", systemImage: "hammer")
-                }
+                // MARK: Advanced Tab
+                advancedTab
+                    .tabItem {
+                        Label("Advanced", systemImage: "hammer")
+                    }
+            }
+            .frame(width: 480, height: 320)
+            .padding()
+
+            if showToast {
+                ToastView(message: "✅ Flutter SDK configured successfully!")
+                    .padding(.bottom, 12)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
         }
-        .frame(width: 480, height: 320)
-        .padding()
+        .onAppear {
+            flutterPath = ConfigManager.loadFlutterPath()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .flutterSDKConfigured)) { _ in
+            showToastAnimated()
+        }
+    }
+
+    // MARK: - Toast Animation Helper
+    private func showToastAnimated() {
+        withAnimation { showToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation { showToast = false }
+        }
     }
 
     // MARK: - Tabs
@@ -68,13 +92,12 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-            // 👇 New custom interval field
             HStack {
                 Text("Run every")
                 TextField("Days", value: $customIntervalDays, formatter: NumberFormatter())
                     .frame(width: 50)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .onChange(of: customIntervalDays) { _, newValue in
+                    .onChange(of: customIntervalDays) { _, _ in
                         if autoCleanEnabled {
                             LaunchdScheduler.enableAutoClean()
                         }
@@ -83,7 +106,6 @@ struct SettingsView: View {
             }
             .font(.caption)
             .padding(.top, 4)
-            
 
             Text("Customize how often the auto-clean runs. Minimum 1 day.")
                 .font(.caption2)
@@ -117,7 +139,6 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-            // View Logs Button
             Button {
                 let logURL = FileManager.default
                     .homeDirectoryForCurrentUser
@@ -128,27 +149,64 @@ struct SettingsView: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(.top, 8)
-            
-            Button("Change Flutter Path") {
-                if let path = FlutterPathPicker.pickFlutterBinary() {
-                    AppLogger.log("✅ Flutter path changed to: \(path)")
-                    ConfigManager.saveFlutterPath(path.absoluteString)
+
+            HStack(spacing: 8) {
+                // Editable text field for SDK path
+                TextField("No SDK path set", text: Binding(
+                    get: { flutterPath ?? "" },
+                    set: { newValue in
+                        flutterPath = newValue
+                        if FileManager.default.isExecutableFile(atPath: newValue) {
+                            ConfigManager.saveFlutterPath(newValue)
+                            AppLogger.log("✅ Flutter path updated manually: \(newValue)")
+                        }
+                    })
+                )
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .font(.caption)
+                .disableAutocorrection(true)
+                .frame(maxWidth: .infinity)
+
+                // Change (folder) icon
+                Button {
+                    if let path = FlutterPathPicker.pickFlutterBinary() {
+                        flutterPath = path.path
+                        ConfigManager.saveFlutterPath(path.path)
+                        AppLogger.log("✅ Flutter path changed via picker: \(path.path)")
+                        showToastAnimated()
+                    }
+                } label: {
+                    Image(systemName: "folder.badge.gearshape")
+                        .help("Change Flutter SDK Location")
+                }
+                .buttonStyle(.borderless)
+
+                // Reveal in Finder
+                if let path = flutterPath {
+                    Button {
+                        let folder = URL(fileURLWithPath: path).deletingLastPathComponent()
+                        NSWorkspace.shared.open(folder)
+                    } label: {
+                        Image(systemName: "magnifyingglass.circle")
+                            .help("Reveal SDK in Finder")
+                    }
+                    .buttonStyle(.borderless)
                 }
             }
-            .buttonStyle(.bordered)
-            
+            .padding(.top, 4)
+
             // Inline recent log preview
             let logURL = FileManager.default
                 .homeDirectoryForCurrentUser
                 .appendingPathComponent("Library/Logs/FlutterCleaner.log")
 
-            if let logText = try? String(contentsOf: logURL,encoding: .utf8),
+            if let logText = try? String(contentsOf: logURL, encoding: .utf8),
                !logText.isEmpty {
                 let lastLines = logText.split(separator: "\n").suffix(20).joined(separator: "\n")
 
                 ScrollView {
                     Text(lastLines)
-                        .font(.system(.caption2, design:.monospaced))
+                        .font(.system(.caption2, design: .monospaced))
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -173,16 +231,15 @@ struct SettingsView: View {
     }
 }
 
-#Preview("Settings - Automation") {
+#Preview("Settings") {
     SettingsView()
         .frame(width: 600, height: 400)
         .preferredColorScheme(.light)
 }
 
-#Preview("Settings - Advanced (Logs)") {
+
+#Preview("Settings Dark") {
     SettingsView()
         .frame(width: 600, height: 400)
-        .preferredColorScheme(.light)
-        // optionally, if your SettingsView uses @State tab selection:
-        //.environment(\.selectedTab, "Advanced")
+        .preferredColorScheme(.dark)
 }

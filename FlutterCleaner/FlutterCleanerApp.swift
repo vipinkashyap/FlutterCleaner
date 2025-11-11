@@ -9,21 +9,40 @@ import SwiftUI
 
 @main
 struct FlutterCleanerApp: App {
-    init() {
-        // Ensure we can read disk freely
-        PermissionManager.promptForFullDiskAccessIfNeeded()
+init() {
+    // Ensure disk access
+    PermissionManager.promptForFullDiskAccessIfNeeded()
 
-        if Cleaner.detectFlutterPath() == nil,
-           FlutterPathPicker.restoreFlutterBinary() == nil {
-            _ = FlutterPathPicker.pickFlutterBinary()
+    // Try loading saved config first
+    if let saved = ConfigManager.loadFlutterPath(),
+       FileManager.default.isExecutableFile(atPath: saved) {
+        AppLogger.log("✅ Using saved Flutter SDK path: \(saved)")
+    } else if let detected = Cleaner.detectFlutterPath() {
+        AppLogger.log("✅ Auto-detected Flutter SDK at: \(detected)")
+        ConfigManager.saveFlutterPath(detected)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            NotificationCenter.default.post(name: .flutterSDKConfigured, object: nil)
         }
-
-        let args = CommandLine.arguments
-        if args.contains("--auto") {
-            AutoCleaner.run()
-            exit(0)
-        }
+    } else {
+        // Couldn’t detect -> prompt user
+        let alert = NSAlert()
+        alert.messageText = "Flutter SDK Not Found"
+        alert.informativeText = """
+        Flutter Cleaner couldn’t find your Flutter SDK automatically.
+        Please select your Flutter SDK folder (e.g. ~/flutter)
+        or binary (e.g. ~/flutter/bin/flutter).
+        """
+        alert.addButton(withTitle: "Select SDK")
+        alert.runModal()
+        _ = FlutterPathPicker.pickFlutterBinary()
     }
+
+    // Handle launchd auto-clean mode
+    if CommandLine.arguments.contains("--auto") {
+        AutoCleaner.run()
+        exit(0)
+    }
+}
 
     var body: some Scene {
         WindowGroup {
@@ -35,4 +54,8 @@ struct FlutterCleanerApp: App {
             SettingsView()
         }
     }
+}
+
+extension Notification.Name {
+    static let flutterSDKConfigured = Notification.Name("flutterSDKConfigured")
 }
