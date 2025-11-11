@@ -12,5 +12,6 @@ struct ToastView: View {
             .cornerRadius(8)
             .transition(.opacity.combined(with: .move(edge: .top)))
             .animation(.easeInOut(duration: 0.3), value: message)
+            .zIndex(1)
     }
 }

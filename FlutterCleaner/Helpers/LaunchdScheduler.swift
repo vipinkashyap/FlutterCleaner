@@ -7,29 +7,24 @@ struct LaunchdScheduler {
 
     /// Create or update the LaunchAgent plist
     static func enableAutoClean() {
-        let intervalDays = UserDefaults.standard.integer(forKey: "customIntervalDays")
-        let interval = max(intervalDays, 1) * 60 * 60 * 24
-        
-     
+        disableAutoClean()
+        let intervalDays = max(UserDefaults.standard.integer(forKey: "customIntervalDays"), 1)
+        let interval = intervalDays * 86400
+
         let plist: [String: Any] = [
             "Label": "com.fluttercleaner.autoclean",
-            "ProgramArguments": [
-                "/usr/bin/env",
-                "open",
-                "-a",
-                "/Applications/FlutterCleaner.app",
-                "--args",
-                "--auto"
-            ],            "StartInterval": interval,
+            "ProgramArguments": ["/usr/bin/env", "open", "-a", "/Applications/FlutterCleaner.app", "--args", "--auto"],
+            "StartInterval": interval,
             "RunAtLoad": true
         ]
 
         do {
             let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
             try data.write(to: agentPath)
-            _ = shell("launchctl load \(agentPath.path)")
+            _ = shell("launchctl load '\(agentPath.path)'")
+            AppLogger.log("🕒 Auto-clean scheduled every \(intervalDays) day(s)")
         } catch {
-            print("Failed to create LaunchAgent: \(error)")
+            AppLogger.log("❌ Failed to enable auto-clean: \(error.localizedDescription)")
         }
     }
 

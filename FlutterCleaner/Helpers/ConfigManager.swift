@@ -28,10 +28,16 @@ struct ConfigManager {
     static func loadFlutterPath() -> String? {
         guard let data = try? Data(contentsOf: configURL),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: String],
-              let path = json["flutterPath"], FileManager.default.fileExists(atPath: path)
-        else {
+              let path = json["flutterPath"] else {
+            AppLogger.log("⚠️ Config missing or unreadable at \(configURL.path)")
             return nil
         }
+
+        guard FileManager.default.isExecutableFile(atPath: path) else {
+            AppLogger.log("⚠️ Flutter path found in config but not executable: \(path)")
+            return nil
+        }
+
         return path
     }
 }

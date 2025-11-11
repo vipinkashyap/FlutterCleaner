@@ -7,31 +7,34 @@
 
 
 import Foundation
-import os
+import OSLog
 
 struct AppLogger {
     private static let logURL = FileManager.default
         .homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/FlutterCleaner.log")
 
-    static func log(_ message: String) {
-        let timestamp = ISO8601DateFormatter().string(from: .now)
-        let line = "[\(timestamp)] \(message)\n"
+    private static let logger = Logger(subsystem: "com.mrowl.FlutterCleaner", category: "App")
 
-        // Write to file
-        if let data = line.data(using: .utf8) {
+    private static let queue = DispatchQueue(label: "AppLoggerQueue", qos: .utility)
+
+    static func log(_ message: String) {
+        queue.async {
+            let timestamp = ISO8601DateFormatter().string(from: .now)
+            let line = "[\(timestamp)] \(message)\n"
+            guard let data = line.data(using: .utf8) else { return }
+
             if FileManager.default.fileExists(atPath: logURL.path) {
                 if let handle = try? FileHandle(forWritingTo: logURL) {
-                    handle.seekToEndOfFile()
-                    handle.write(data)
-                    handle.closeFile()
+                    try? handle.seekToEnd()
+                    try? handle.write(contentsOf: data)
+                    try? handle.close()
                 }
             } else {
                 try? data.write(to: logURL)
             }
-        }
 
-        // Mirror to unified system log
-        os_log("%{public}@", log: .default, type: .info, message)
+            logger.info("\(message, privacy: .public)")
+        }
     }
 }

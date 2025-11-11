@@ -36,6 +36,13 @@ Built with ❤️ in SwiftUI.
 
 ------------------------------------------------------------------------
 
+## 🔐 Permissions
+
+Flutter Cleaner requires **Full Disk Access** to scan your home directory.
+Grant access via:
+
+> System Settings → Privacy & Security → Full Disk Access → Add "Flutter Cleaner"
+
 ## 🧩 How It Works
 
 Flutter Cleaner scans folders recursively to find any project containing
@@ -101,14 +108,9 @@ Select the **"My Mac"** target and hit ▶️ Run.
 
 ## 💡 Notes
 
--   The app is signed under **com.mrowl.FlutterCleaner**
 -   Compatible with macOS 13 Ventura and later
 -   Requires Flutter installed and accessible via your PATH
 
 ------------------------------------------------------------------------
 
-## 🧾 License
 
-This project is released under the [MIT License](LICENSE).
-
-© 2025 [DrOwl / Mrowl, Inc.](https://mrowl.com)

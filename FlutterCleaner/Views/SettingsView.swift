@@ -155,15 +155,20 @@ struct SettingsView: View {
                 TextField("No SDK path set", text: Binding(
                     get: { flutterPath ?? "" },
                     set: { newValue in
-                        flutterPath = newValue
+                        flutterPath = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                         if FileManager.default.isExecutableFile(atPath: newValue) {
                             ConfigManager.saveFlutterPath(newValue)
                             AppLogger.log("✅ Flutter path updated manually: \(newValue)")
                         }
                     })
                 )
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textFieldStyle(.plain)
+                .padding(6)
+                .background(Color(NSColor.controlBackgroundColor))
+                .cornerRadius(6)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2)))
                 .font(.caption)
+                .textSelection(.enabled)
                 .disableAutocorrection(true)
                 .frame(maxWidth: .infinity)
 
