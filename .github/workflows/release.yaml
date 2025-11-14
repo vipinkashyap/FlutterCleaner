@@ -18,7 +18,7 @@ jobs:
         with:
           xcode-version: "latest-stable"
 
-      - name: Build Release App (Unsigned)
+      - name: Build Release App
         run: |
           xcodebuild -project FlutterCleaner.xcodeproj \
             -scheme FlutterCleaner \
