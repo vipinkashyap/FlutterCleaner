@@ -1,0 +1,44 @@
+name: Build macOS App and Create DMG
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+
+jobs:
+    build:
+        runs-on: macos-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Select Xcode Version
+              uses: maxim-lobanov/setup-xcode@v1
+              with:
+                  xcode-version: "latest-stable"
+
+            - name: Build Release App
+              run: |
+                  xcodebuild -project FlutterCleaner.xcodeproj \
+                    -scheme FlutterCleaner \
+                    -configuration Release \
+                    -derivedDataPath build
+
+            - name: Install create-dmg
+              run: brew install create-dmg
+
+            - name: Create DMG
+              run: |
+                  create-dmg \
+                    --volname "Flutter Cleaner" \
+                    --window-size 600 400 \
+                    --icon-size 128 \
+                    --app-drop-link 400 200 \
+                    FlutterCleaner.dmg \
+                    build/Build/Products/Release/FlutterCleaner.app
+
+            - name: Upload Release Asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: FlutterCleaner.dmg
