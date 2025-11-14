@@ -14,7 +14,7 @@ struct AppLogger {
         .homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/FlutterCleaner.log")
 
-    private static let logger = Logger(subsystem: "com.mrowl.FlutterCleaner", category: "App")
+    private static let logger = Logger(subsystem: "com.example.FlutterCleaner", category: "App")
 
     private static let queue = DispatchQueue(label: "AppLoggerQueue", qos: .utility)
 

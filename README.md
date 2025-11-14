@@ -64,7 +64,7 @@ Optionally, if **Deep Clean** is enabled, it also removes:
 ### 1️⃣ Clone the project
 
 ``` bash
-git clone https://github.com/mrowl/flutter-cleaner.git
+git clone https://github.com/vipinkashyap/FlutterCleaner.git
 cd FlutterCleaner
 ```
 
