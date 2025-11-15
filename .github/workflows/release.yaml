@@ -33,7 +33,35 @@ jobs:
       - name: Compress app into ZIP
         run: |
           cd build/Build/Products/Release
-          zip -r FlutterCleaner.zip FlutterCleaner.app
+          cat > INSTALL.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <title>FlutterCleaner Installation</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 2rem; line-height: 1.6; }
+                  h1 { color: #007AFF; }
+                  code { background: #f2f2f2; padding: 4px 6px; border-radius: 4px; }
+              </style>
+          </head>
+          <body>
+              <h1>🧹 FlutterCleaner Installation</h1>
+              <p>Thank you for downloading <strong>FlutterCleaner</strong>!</p>
+              <h2>📥 Install</h2>
+              <p>1. Drag <strong>FlutterCleaner.app</strong> into your <strong>/Applications</strong> folder.</p>
+              <h2>⚠️ macOS “App is Damaged” Warning</h2>
+              <p>Because FlutterCleaner is unsigned (developer tool), macOS may show:</p>
+              <blockquote>“FlutterCleaner.app is damaged and can’t be opened.”</blockquote>
+              <p>This is normal. Open the app once and follow the built‑in popup to fix quarantine.</p>
+              <h3>Or run manually:</h3>
+              <code>sudo xattr -rd com.apple.quarantine /Applications/FlutterCleaner.app</code>
+              <h2>🎉 Done!</h2>
+              <p>You can now run FlutterCleaner normally.</p>
+          </body>
+          </html>
+          EOF
+          zip -r FlutterCleaner.zip FlutterCleaner.app INSTALL.html
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2

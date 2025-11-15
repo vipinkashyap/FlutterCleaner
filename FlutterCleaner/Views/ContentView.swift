@@ -29,6 +29,19 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
+            if Bundle.main.isQuarantined {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.yellow)
+                    Text("App is quarantined — run the setup command in Settings")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(8)
+                .background(Color(NSColor.windowBackgroundColor))
+                .cornerRadius(8)
+                .padding(.bottom, 4)
+            }
 
             if let folder = selectedFolder {
                 Text("Last scanned folder: \(folder.lastPathComponent)")
