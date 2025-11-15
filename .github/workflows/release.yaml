@@ -1,4 +1,4 @@
-name: Build macOS App and Create DMG
+name: Build macOS App and Export ZIP
 
 on:
   push:
@@ -30,20 +30,12 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Install create-dmg
-        run: brew install create-dmg
-
-      - name: Create DMG
+      - name: Compress app into ZIP
         run: |
-          create-dmg \
-            --volname "Flutter Cleaner" \
-            --window-size 600 400 \
-            --icon-size 128 \
-            --app-drop-link 400 200 \
-            FlutterCleaner.dmg \
-            build/Build/Products/Release/FlutterCleaner.app
+          cd build/Build/Products/Release
+          zip -r FlutterCleaner.zip FlutterCleaner.app
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          files: FlutterCleaner.dmg
+          files: build/Build/Products/Release/FlutterCleaner.zip
