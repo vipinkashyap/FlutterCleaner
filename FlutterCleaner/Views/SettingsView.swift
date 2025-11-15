@@ -16,6 +16,19 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
+            if Bundle.main.isQuarantined {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.yellow)
+                    Text("App Quarantined — run the setup command to fix")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(8)
+                .background(Color(NSColor.windowBackgroundColor))
+                .cornerRadius(8)
+                .padding(.horizontal)
+            }
             TabView {
                 // MARK: General Tab
                 generalTab

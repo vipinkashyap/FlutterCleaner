@@ -8,6 +8,8 @@ build artifacts safely.
 
 Built with ❤️ in SwiftUI.
 
+> 📝 **Note:** Because FlutterCleaner is a developer tool distributed outside the App Store and not notarized, macOS will show a one-time quarantine warning. The app now detects this automatically and guides you to fix it safely.
+
 ------------------------------------------------------------------------
 
 ## ✨ Features

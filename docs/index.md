@@ -49,11 +49,15 @@ h1, h2, h3 {
 
 # 🧹 Flutter Cleaner for macOS
 
+<img class="screenshot" src="./screenshots/app_icon_512.png" alt="Logo"/>
+
 A beautiful, lightweight macOS utility that finds Flutter projects on your system and helps you reclaim disk space safely — built entirely with SwiftUI.
 
-<a class="download-btn" href="https://github.com/vipinkashyap/FlutterCleaner/releases/latest">
-📥 Download Latest Version (.dmg)
-</a>
+<div style="text-align: center;">
+    <a class="download-btn" href="https://github.com/vipinkashyap/FlutterCleaner/releases/latest">
+        📥 Download Latest Version (.dmg)
+    </a>
+</div>
 
 <div class="divider"></div>
 
@@ -71,9 +75,9 @@ A beautiful, lightweight macOS utility that finds Flutter projects on your syste
 
 ## 🖼 Screenshots
 
-<img class="screenshot" src="../FlutterCleaner/Screenshots/cleaner_main.png" alt="Main Window"/>
-<img class="screenshot" src="../FlutterCleaner/Screenshots/settings.png" alt="Settings"/>
-<img class="screenshot" src="../FlutterCleaner/Screenshots/logs_preview.png" alt="Logs"/>
+<img class="screenshot" src="./screenshots/cleaner_main.png" alt="Main Window"/>
+<img class="screenshot" src="./screenshots/settings.png" alt="Settings"/>
+<img class="screenshot" src="./screenshots/logs_preview.png" alt="Logs"/>
 
 <div class="divider"></div>
 
@@ -89,6 +93,30 @@ Flutter Cleaner needs **Full Disk Access** to scan your home directory:
 
 - macOS 13.0 (Ventura) or newer  
 - Flutter installed (`flutter` available in PATH)  
+
+<div class="divider"></div>
+
+## ⚠️ macOS “App is Damaged” Warning (Quarantine)
+
+Because FlutterCleaner is distributed unsigned (developer tool, not notarized), macOS may show:
+
+> **“FlutterCleaner.app is damaged and can’t be opened.”**
+
+This is not an error — macOS attaches a *quarantine flag* to apps downloaded from the internet.
+
+### ✔️ The app helps you fix it automatically  
+When you open FlutterCleaner, it detects the quarantine status and shows a helper popup with:
+- A one‑click **Run in Terminal…** button  
+- A **Copy Command** button  
+- A clickable code block that copies on tap
+
+### ✔️ Manual one‑time fix (if needed)
+
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/FlutterCleaner.app
+```
+
+After running this once, macOS will trust the app permanently.
 
 <div class="divider"></div>
 
